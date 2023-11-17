@@ -1,0 +1,155 @@
+import os
+import requests
+import time
+from newspaper import Article
+import openai
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Function to fetch news articles
+def fetch_news_articles():
+    api_token = os.getenv('CRYPTONEWS_API_TOKEN')
+    url = f"https://cryptonews-api.com/api/v1?tickers=BTC&items=30&page=1&token={api_token}"
+    
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()['data']
+    else:
+        print("Failed to fetch news articles")
+        return []
+
+# Variable holding 30 articles
+articles = fetch_news_articles()
+print(articles)
+
+def scrape_article(url):
+    try:
+        article = Article(url)
+        article.download()
+        article.parse()
+        return article.text
+    except Exception as e:
+        print(f"Failed to scrape {url}: {str(e)}")
+        return None
+
+# Function to scrape all articles and store them
+def scrape_all_articles(articles):
+    scraped_articles = []
+    for article in articles:
+        article_content = scrape_article(article['news_url'])
+        if article_content:
+            scraped_articles.append({
+                'title': article['title'],
+                'text': article_content,
+                'source_name': article['source_name'],
+                'date': article['date'],
+                'sentiment': article['sentiment'],  # Provided by Cryptonews API
+                'url': article['news_url']
+            })
+    return scraped_articles
+
+# Scrape all 30 articles using Newspaper3k
+scraped_articles = scrape_all_articles(articles)
+
+# Print a snippet of each scraped article's details
+for article in scraped_articles:
+    snippet = (article['text'][:200] + '...') if len(article['text']) > 200 else article['text']
+    print(f"Title: {article['title']}")
+    print(f"Source: {article['source_name']}")
+    print(f"Date: {article['date']}")
+    print(f"Sentiment: {article['sentiment']}")
+    print(f"URL: {article['url']}")
+    print(f"Content Snippet:\n{snippet}\n")
+    print("------------------------------------------------\n")
+
+
+
+# Function to analyze an article with GPT-4
+def analyze_article_with_gpt(article_text):
+    try:
+        # System prompt
+        system_prompt = (
+        "You are a highly knowledgeable assistant with expertise in Bitcoin and cryptocurrency markets. "
+        "Your task is to analyze news articles related to Bitcoin. For each article, you will provide a concise summary. "
+        "After summarizing, you will rate the sentiment of the article, its relevance to the Bitcoin and cryptocurrency markets, "
+        "and its overall importance. Rate each of these three aspects on a scale from 0 to 100, where 0 is the lowest and 100 is the highest. "
+        "Your responses should be factual, unbiased, and based solely on the content of the article. "
+        "Respond in a structured format that includes the summary followed by the ratings for sentiment, relevance, and importance. "
+        "For example: 'Summary: [Your summary here]. Sentiment: [0-100], Relevance: [0-100], Importance: [0-100].' "
+        "Avoid speculation and provide analysis based on the information available in the article."
+        )
+
+        # Structured prompt for analysis
+        analysis_prompt = (
+            f"Analyze the following Bitcoin-related article and provide a summary, "
+            f"then rate its sentiment, market relevance, and importance on a scale from 0 to 100. "
+            f"Respond in the following format: "
+            f"Summary: [Your summary here] "
+            f"Sentiment: [0-100], Relevance: [0-100], Importance: [0-100].\n\n{article_text}"
+        )
+
+        # Create the chat completion
+        response = openai.chat.completions.create(
+            model="gpt-4-1106-preview",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": analysis_prompt}
+            ],
+            temperature=0.3,
+            max_tokens=4095
+        )
+
+        # Assuming the response follows the format, we extract the summary and ratings
+        response_content = response.choices[0].message.content
+        summary = response_content.split('Summary: ')[1].split(' Sentiment: ')[0].strip()
+        sentiment = int(response_content.split('Sentiment: ')[1].split(', Relevance: ')[0].strip())
+        relevance = int(response_content.split('Relevance: ')[1].split(', Importance: ')[0].strip())
+        importance = int(response_content.split('Importance: ')[1].split('.')[0].strip())
+
+        return {
+            'summary': summary,
+            'sentiment': sentiment,
+            'relevance': relevance,
+            'importance': importance
+        }
+    except Exception as e:  # Catching a general exception for simplicity
+        print(f"An error occurred: {str(e)}")
+        return None
+
+# Example usage
+for article in scraped_articles:
+    analysis_results = analyze_article_with_gpt(article['text'])
+    if analysis_results:
+        article.update(analysis_results)
+        print(f"Title: {article['title']}")
+        print(f"Summary: {article['summary']}")
+        print(f"Sentiment Rating: {article['sentiment']}")
+        print(f"Market Relevance Rating: {article['relevance']}")
+        print(f"Importance Rating: {article['importance']}")
+        print("------------------------------------------------\n")
+
+def parse_ratings(analysis_text):
+    # Example parsing logic for the structured format
+    ratings = {'sentiment': 0, 'relevance': 0, 'importance': 0}
+    try:
+        # Assuming GPT-4 follows the format, we extract the numbers within brackets
+        ratings['sentiment'] = int(analysis_text.split('Sentiment: [')[1].split(']')[0])
+        ratings['relevance'] = int(analysis_text.split('Relevance: [')[1].split(']')[0])
+        ratings['importance'] = int(analysis_text.split('Importance: [')[1].split(']')[0])
+    except (IndexError, ValueError) as e:
+        print(f"Error parsing ratings: {str(e)}")
+    return ratings
+
+# Example usage
+for article in scraped_articles:
+    analysis_results = analyze_article_with_gpt(article['text'])
+    if analysis_results:
+        article.update(analysis_results)
+        print(f"Title: {article['title']}")
+        print(f"Summary: {article['summary']}")
+        print(f"Sentiment Rating: {article['sentiment']}")
+        print(f"Market Relevance Rating: {article['relevance']}")
+        print(f"Importance Rating: {article['importance']}")
+        print("------------------------------------------------\n")
