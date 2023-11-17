@@ -1,4 +1,5 @@
 # gpt-btc
- gpt 4 powered btc analysis and trading bot
+gpt 4 powered btc analysis and trading bot
 
-proof of concept in the works
+analysis is wip, trading is planned
+
