@@ -106,7 +106,7 @@ def analyze_article_with_gpt(article_text):
 
         # Assuming the response follows the format, we extract the summary and ratings
         response_content = response.choices[0].message.content
-        print(response.choices[0].message.content)
+        # print(response.choices[0].message.content)
         summary = response_content.split('Summary: ')[1].split(' Sentiment: ')[0].strip()
         
         # Extracting sentiment, relevance, and importance, handling extra text
@@ -141,6 +141,7 @@ for article in scraped_articles:
         print(f"Importance Rating: {article['importance']}")
         print("------------------------------------------------\n")
 
+# Parse GPT response for ratings
 def parse_ratings(analysis_text):
     # Example parsing logic for the structured format
     ratings = {'sentiment': 0, 'relevance': 0, 'importance': 0}
@@ -164,3 +165,22 @@ for article in scraped_articles:
         print(f"Market Relevance Rating: {article['relevance']}")
         print(f"Importance Rating: {article['importance']}")
         print("------------------------------------------------\n")
+
+# Function to save results to a file
+def save_results_to_file(articles, filename):
+    with open(filename, 'w') as file:
+        for article in articles:
+            analysis_results = analyze_article_with_gpt(article['text'])
+            if analysis_results:
+                article.update(analysis_results)
+                file.write(f"Title: {article['title']}\n")
+                file.write(f"Summary: {article['summary']}\n")
+                file.write(f"Sentiment Rating: {article['sentiment']}\n")
+                file.write(f"Market Relevance Rating: {article['relevance']}\n")
+                file.write(f"Importance Rating: {article['importance']}\n")
+                file.write("------------------------------------------------\n\n")
+
+# Save the results to a file - MODIFY FILENAME HERE
+save_results_to_file(scraped_articles, 'analysis_results_11.17.2023.txt')
+
+#to do - comprehensive analysis
