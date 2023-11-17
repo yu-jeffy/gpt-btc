@@ -78,6 +78,7 @@ def analyze_article_with_gpt(article_text):
         "Your responses should be factual, unbiased, and based solely on the content of the article. "
         "Respond in a structured format that includes the summary followed by the ratings for sentiment, relevance, and importance. "
         "For example: 'Summary: [Your summary here]. Sentiment: [0-100], Relevance: [0-100], Importance: [0-100].' "
+        "Do not have any text following the integer rating for Sentiment, Relevance, nor Importance."
         "Avoid speculation and provide analysis based on the information available in the article."
         )
 
@@ -85,6 +86,8 @@ def analyze_article_with_gpt(article_text):
         analysis_prompt = (
             f"Analyze the following Bitcoin-related article and provide a summary, "
             f"then rate its sentiment, market relevance, and importance on a scale from 0 to 100. "
+            f"Do not have any text following the integer rating for Sentiment, Relevance, nor Importance."
+            f"We will be parsing the response with a predetermined format, STRICTLY follow the format"
             f"Respond in the exact following format: "
             f"Summary: [Your summary here] "
             f"Sentiment: [0-100], Relevance: [0-100], Importance: [0-100].\n\n{article_text}"
@@ -98,15 +101,23 @@ def analyze_article_with_gpt(article_text):
                 {"role": "user", "content": analysis_prompt}
             ],
             temperature=0.3,
-            max_tokens=4095
+            max_tokens=1200
         )
 
         # Assuming the response follows the format, we extract the summary and ratings
         response_content = response.choices[0].message.content
+        print(response.choices[0].message.content)
         summary = response_content.split('Summary: ')[1].split(' Sentiment: ')[0].strip()
-        sentiment = int(response_content.split('Sentiment: ')[1].split(', Relevance: ')[0].strip())
-        relevance = int(response_content.split('Relevance: ')[1].split(', Importance: ')[0].strip())
-        importance = int(response_content.split('Importance: ')[1].split('.')[0].strip())
+        
+        # Extracting sentiment, relevance, and importance, handling extra text
+        sentiment_str = response_content.split('Sentiment: ')[1].split(',')[0].split(' ')[0].strip()
+        relevance_str = response_content.split('Relevance: ')[1].split(',')[0].split(' ')[0].strip()
+        importance_str = response_content.split('Importance: ')[1].split('.')[0].split(' ')[0].strip()
+
+        # Converting string to integer, handling any non-numeric characters
+        sentiment = int(''.join(filter(str.isdigit, sentiment_str)))
+        relevance = int(''.join(filter(str.isdigit, relevance_str)))
+        importance = int(''.join(filter(str.isdigit, importance_str)))
 
         return {
             'summary': summary,
@@ -118,7 +129,7 @@ def analyze_article_with_gpt(article_text):
         print(f"An error occurred: {str(e)}")
         return None
 
-# Example usage
+# Analyze and rate articles using GPT
 for article in scraped_articles:
     analysis_results = analyze_article_with_gpt(article['text'])
     if analysis_results:
@@ -142,7 +153,7 @@ def parse_ratings(analysis_text):
         print(f"Error parsing ratings: {str(e)}")
     return ratings
 
-# Example usage
+# Print parsed results
 for article in scraped_articles:
     analysis_results = analyze_article_with_gpt(article['text'])
     if analysis_results:
