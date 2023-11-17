@@ -85,7 +85,7 @@ def analyze_article_with_gpt(article_text):
         analysis_prompt = (
             f"Analyze the following Bitcoin-related article and provide a summary, "
             f"then rate its sentiment, market relevance, and importance on a scale from 0 to 100. "
-            f"Respond in the following format: "
+            f"Respond in the exact following format: "
             f"Summary: [Your summary here] "
             f"Sentiment: [0-100], Relevance: [0-100], Importance: [0-100].\n\n{article_text}"
         )
