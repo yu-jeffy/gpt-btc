@@ -1,0 +1,4 @@
+Current Block Height: 817556
+Estimated Halving Date: 2024-04-23 19:34:25.028924
+Current Mining Difficulty: 3.3583042826656446e+47
+Estimated Network Hash Rate: 2.403967844010947e+54 hashes/second

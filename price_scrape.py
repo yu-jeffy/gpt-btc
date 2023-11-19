@@ -51,7 +51,7 @@ summary_2y = clean_and_summarize_data(two_year_data)
 all_summaries = "\n".join([summary_7d, summary_3m, summary_6m, summary_1y, summary_2y])
 
 # Create a timestamp for the filename
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 filename = f"price_data_{timestamp}.txt"
 
 # Save the summarized data to a file in the /results folder

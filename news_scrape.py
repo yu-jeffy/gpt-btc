@@ -177,7 +177,6 @@ def main():
     print(articles)
     scraped_articles = scrape_all_articles(articles)
     analyze_and_store_articles(scraped_articles)
-    print_scraped_articles(scraped_articles)  # You would define this function to print article snippets
     save_results_to_file(scraped_articles)
 
 if __name__ == '__main__':

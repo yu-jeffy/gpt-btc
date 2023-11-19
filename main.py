@@ -2,6 +2,10 @@ import os
 import re
 import subprocess
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 import openai
 
@@ -23,8 +27,11 @@ def run_scraping_scripts():
 
 # Function to get the latest file with a specific prefix
 def get_latest_file(prefix):
-    files = [f for f in os.listdir(RESULTS_DIR) if re.match(rf'{prefix}_\d+', f)]
-    latest_file = max(files, key=lambda x: datetime.strptime(x[len(prefix) + 1:x.find('.txt')], '%Y%m%d_%H%M%S'))
+    # Update the regex pattern to match the full timestamp with hyphens and underscores
+    pattern = rf"{prefix}_\d{{4}}-\d{{2}}-\d{{2}}_\d{{2}}-\d{{2}}-\d{{2}}"
+    files = [f for f in os.listdir(RESULTS_DIR) if re.match(pattern, f)]
+    # Extract the timestamp from the filename and parse it with the correct format
+    latest_file = max(files, key=lambda x: datetime.strptime(x[len(prefix) + 1:x.find('.txt')], '%Y-%m-%d_%H-%M-%S'))
     return os.path.join(RESULTS_DIR, latest_file)
 
 # Function to read and title the file contents
