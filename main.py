@@ -1,7 +1,3 @@
-import price_scrape
-import news_scrape
-import blockexplorer_scrape
-
 import os
 import re
 import subprocess
