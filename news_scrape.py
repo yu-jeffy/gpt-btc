@@ -1,6 +1,7 @@
 import os
 import requests
 import time
+from datetime import datetime
 from newspaper import Article
 import openai
 from dotenv import load_dotenv
@@ -166,8 +167,16 @@ for article in scraped_articles:
         print(f"Importance Rating: {article['importance']}")
         print("------------------------------------------------\n")
 
-# Function to save results to a file
-def save_results_to_file(articles, filename):
+# Function to save results to a file with a timestamp in the filename
+def save_results_to_file(articles, results_directory='results'):
+    # Ensure the results directory exists
+    if not os.path.exists(results_directory):
+        os.makedirs(results_directory)
+    
+    # Generate a timestamped filename
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    filename = f"{results_directory}/news_analysis_{timestamp}.txt"
+    
     with open(filename, 'w') as file:
         for article in articles:
             analysis_results = analyze_article_with_gpt(article['text'])
@@ -179,8 +188,9 @@ def save_results_to_file(articles, filename):
                 file.write(f"Market Relevance Rating: {article['relevance']}\n")
                 file.write(f"Importance Rating: {article['importance']}\n")
                 file.write("------------------------------------------------\n\n")
+    print(f"Analysis results saved to {filename}")
 
-# Save the results to a file - MODIFY FILENAME HERE
-save_results_to_file(scraped_articles, 'analysis_results_11.17.2023.txt')
+# Save the results to a file with a timestamped filename
+save_results_to_file(scraped_articles)
 
 #to do - comprehensive analysis
