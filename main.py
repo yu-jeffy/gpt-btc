@@ -58,7 +58,7 @@ def run_analysis():
     )
     
     # Define the analysis prompt
-    analysis_prompt = "Please analyze the following Bitcoin data:\n" + concatenated_data
+    analysis_prompt = "Please analyze the following Bitcoin data in comprehensive detail and with granularity in detail. Provide a full professional market report, with financial and investing analysis, broken into sections, organized best depending on the analysis. This response must be 4000 tokens in length. Be direct, straightforward.:\n"+ concatenated_data
     
     # Create the chat completion
     response = openai.chat.completions.create(
@@ -76,12 +76,14 @@ def run_analysis():
     filename = f"file_analysis_{timestamp}.txt"
     filepath = os.path.join(RESULTS_DIR, filename)
     
-    # Write the response to a file
+    # Write the response content to a file
     with open(filepath, 'w') as file:
-        file.write(str(response))
+        # Extract the content from the response
+        content = response.choices[0].message.content
+        file.write(content)
 
-    # Print response and the path to the new file
-    print(response)
+    # Print the content of the response and the path to the new file
+    print(content)
     print(f"Analysis saved to: {filepath}")
 
 # Run the main analysis function
