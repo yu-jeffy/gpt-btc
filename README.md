@@ -1,10 +1,10 @@
 # gpt-btc
 
-GPT-BTC is a comprehensive Bitcoin analysis suite that utilizes GPT-4-1106 to provide insights into Bitcoin market trends, news sentiment, and blockchain data. The suite includes a Discord bot for real-time updates and a set of Python scripts for data scraping and analysis.
+gpt-btc is a comprehensive Bitcoin analysis suite that utilizes GPT-4-1106 to provide insights into Bitcoin market trends, news sentiment, and blockchain data. The suite includes a Discord bot for real-time updates and a set of Python scripts for data scraping and analysis.
 
 ## About
 
-GPT-BTC leverages OpenAI's GPT-4-1106 model to analyze and summarize Bitcoin-related data. It scrapes price data from the CoinGecko API, fetches the 30 most recent BTC-related articles from the news API, and retrieves the latest block information, including halving estimates and hash rate calculations, from the block explorer API. This comprehensive suite provides a holistic view of the current state of Bitcoin, aiming to assist investors, researchers, and enthusiasts in making informed decisions by offering up-to-date and detailed analysis.
+gpt-btc leverages OpenAI's GPT-4-1106 model to analyze and summarize Bitcoin-related data. It scrapes price data from the CoinGecko API, fetches the 30 most recent BTC-related articles from the news API, and retrieves the latest block information, including halving estimates and hash rate calculations, from the block explorer API. This comprehensive suite provides a holistic view of the current state of Bitcoin, aiming to assist investors, researchers, and enthusiasts in making informed decisions by offering up-to-date and detailed analysis.
 
 The Discord bot component allows users to receive daily Bitcoin analysis updates and manually trigger analysis on demand. The scraping scripts are designed to fetch the latest data from various sources, which is then processed and analyzed by the GPT-4 model.
 
